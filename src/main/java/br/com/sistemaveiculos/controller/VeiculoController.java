@@ -1,47 +1,56 @@
 
 package br.com.sistemaveiculos.controller;
 
-import java.util.List;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import br.com.sistemaveiculos.model.*;
+import br.com.sistemaveiculos.service.VeiculoService;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
-
-import br.com.sistemaveiculos.model.Veiculo;
-import br.com.sistemaveiculos.service.VeiculoService;
+import java.math.BigDecimal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/veiculos")
 public class VeiculoController {
 
-    private final VeiculoService service;
+    private final VeiculoService veiculoService;
 
-    public VeiculoController(VeiculoService service) {
-        this.service = service;
+    public VeiculoController(VeiculoService veiculoService) {
+        this.veiculoService = veiculoService;
     }
 
     @PostMapping
-    public ResponseEntity<Veiculo> cadastrar(
-            @Valid @RequestBody Veiculo veiculo) {
-
-        Veiculo novoVeiculo = service.cadastrar(veiculo);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(novoVeiculo);
+    public Veiculo cadastrar(@RequestBody Veiculo veiculo) {
+        return veiculoService.cadastrar(veiculo);
     }
 
     @GetMapping
-    public ResponseEntity<List<Veiculo>> listarTodos() {
+    public List<Veiculo> listar(
+            @RequestParam(required = false) String marca,
+            @RequestParam(required = false) String modelo,
+            @RequestParam(required = false) Integer ano,
+            @RequestParam(required = false) BigDecimal precoMin,
+            @RequestParam(required = false) BigDecimal precoMax,
+            @RequestParam(required = false) StatusVeiculo status) {
 
-        return ResponseEntity.ok(service.listarTodos());
+        return veiculoService.filtrar(
+                marca, modelo, ano, precoMin, precoMax, status
+        );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Veiculo> buscarPorId(
-            @PathVariable Long id) {
+    public Veiculo buscarPorId(@PathVariable Long id) {
+        return veiculoService.buscarPorId(id);
+    }
 
-        return ResponseEntity.ok(service.buscarPorId(id));
+    @PutMapping("/{id}")
+    public Veiculo atualizar(
+            @PathVariable Long id,
+            @RequestBody Veiculo veiculo) {
+        return veiculoService.atualizar(id, veiculo);
+    }
+
+    @DeleteMapping("/{id}")
+    public void excluir(@PathVariable Long id) {
+        veiculoService.excluir(id);
     }
 }

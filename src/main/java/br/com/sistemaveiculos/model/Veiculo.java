@@ -3,20 +3,29 @@ package br.com.sistemaveiculos.model;
 
 import java.math.BigDecimal;
 
+import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
+@Entity
+@Table(name = "veiculos")
 public class Veiculo {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull(message = "A marca é obrigatória")
     @Valid
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "marca_id", nullable = false)
     private Marca marca;
 
     @NotNull(message = "O modelo é obrigatório")
     @Valid
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "modelo_id", nullable = false)
     private Modelo modelo;
 
     @Min(value = 1886, message = "Ano de fabricação inválido")
@@ -26,12 +35,15 @@ public class Veiculo {
 
     @NotNull(message = "O preço é obrigatório")
     @Min(value = 1, message = "O preço deve ser positivo")
+    @Column(nullable = false)
     private BigDecimal preco;
 
     @Min(value = 0, message = "A quilometragem não pode ser negativa")
     private int quilometragem;
 
     @NotNull(message = "O status é obrigatório")
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private StatusVeiculo status;
 
     public Veiculo() {

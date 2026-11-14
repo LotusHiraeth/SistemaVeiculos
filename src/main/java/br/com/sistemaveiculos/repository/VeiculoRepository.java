@@ -1,40 +1,33 @@
 
 package br.com.sistemaveiculos.repository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-
-import org.springframework.stereotype.Repository;
-
 import br.com.sistemaveiculos.model.Veiculo;
+import br.com.sistemaveiculos.model.StatusVeiculo;
 
-@Repository
-public class VeiculoRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-    private final Map<Long, Veiculo> veiculos = new ConcurrentHashMap<>();
+import java.math.BigDecimal;
+import java.util.List;
 
-    private final AtomicLong contador = new AtomicLong(1);
+public interface VeiculoRepository extends JpaRepository<Veiculo, Long> {
 
-    public Veiculo salvar(Veiculo veiculo) {
-
-        if (veiculo.getId() == null) {
-            veiculo.setId(contador.getAndIncrement());
-        }
-
-        veiculos.put(veiculo.getId(), veiculo);
-
-        return veiculo;
-    }
-
-    public List<Veiculo> listarTodos() {
-        return new ArrayList<>(veiculos.values());
-    }
-
-    public Optional<Veiculo> buscarPorId(Long id) {
-        return Optional.ofNullable(veiculos.get(id));
-    }
+    @Query("""
+        SELECT v FROM Veiculo v
+        WHERE (:marca IS NULL OR LOWER(v.marca.nome) LIKE LOWER(CONCAT('%', :marca, '%')))
+        AND (:modelo IS NULL OR LOWER(v.modelo.nome) LIKE LOWER(CONCAT('%', :modelo, '%')))
+        AND (:ano IS NULL OR v.ano = :ano)
+        AND (:precoMin IS NULL OR v.preco >= :precoMin)
+        AND (:precoMax IS NULL OR v.preco <= :precoMax)
+        AND (:status IS NULL OR v.status = :status)
+    """)
+    List<Veiculo> filtrar(
+            @Param("marca") String marca,
+            @Param("modelo") String modelo,
+            @Param("ano") Integer ano,
+            @Param("precoMin") BigDecimal precoMin,
+            @Param("precoMax") BigDecimal precoMax,
+            @Param("status") StatusVeiculo status
+    );
 }
