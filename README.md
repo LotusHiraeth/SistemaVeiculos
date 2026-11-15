@@ -66,6 +66,6 @@ A aplicação será iniciada na porta 8080.
 | PUT | `/api/veiculos/{id}` | Atualizar veículo |
 | DELETE | `/api/veiculos/{id}` | Excluir veículo |
 
-## Autor
-
+## Autor:
+Juan Vitor
 Projeto acadêmico desenvolvido como atividade prática de desenvolvimento de sistemas.
